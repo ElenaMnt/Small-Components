@@ -1,51 +1,64 @@
-const progress = document.getElementById('progress');
-const prev = document.getElementById('prev');
-const next = document.getElementById('next');
-const circles = document.querySelectorAll('.circle');
+const tagsEl = document.getElementById('tags');
+const textarea = document.getElementById('textarea');
 
-let currentActive = 1
 
-next.addEventListener('click', () => {
-    currentActive++
-    
-    if(currentActive > circles.length){
-        currentActive = circles.length;
+textarea.focus();
+
+textarea.addEventListener('keyup', (e) => {
+    createTags(e.target.value)
+
+    if(e.key === 'Enter')
+    {   
+        setTimeout(() => {
+            e.target.value == '';
+        })
+        ramdomSelect()
     }
-    update()
 })
 
-prev.addEventListener('click', () => {
-    currentActive--
-    
-    if(currentActive < 1){
-        currentActive = 1;
-    }    
-    update()
-})
+function createTags(input){
+    const tags = input.split(',').filter(tag => tag.trim() !== '').map(tag => tag.trim());
+    tagsEl.innerHTML = '';
 
-function update(){
-    circles.forEach((circle, idx)=>{
-        if(idx < currentActive){
-            circle.classList.add('active')
-        }
-        else{
-            circle.classList.remove('active');
-        }
-    })
+    tags.forEach(tag => {
+        const tagEl = document.createElement('span');
+        tagEl.classList.add('tag')
+        tagEl.innerText = tag
+        tagsEl.appendChild(tagEl)
+    });
+}
 
-    const actives = document.querySelectorAll('.active')
+function ramdomSelect(){
+    const times = 30;
 
-    progress.style.width = ((actives.length-1) / (circles.length-1)) * 100 + '%'
+    const interval = setInterval(() => {
+        const randomTag = pickRandomTag()
+        highlightTag(randomTag)
 
-    if(currentActive === 1){
-        prev.disabled = true;
-    }
-    else if (currentActive === circles.length){
-        next.disabled = true;
-    }
-    else{
-        prev.disabled = false;
-        next.disabled = false;
-    }
+        setTimeout(()=>{
+            unhighlightTag(randomTag)
+        },100)        
+    }, 100);
 
+    setTimeout(()=>{
+       clearInterval(interval)
+
+       setTimeout(() => {
+        const randomTag = pickRandomTag()
+        highlightTag(randomTag)
+       },100)
+    },times*100)
+}
+
+function pickRandomTag(){
+    const tags = document.querySelectorAll('.tag')
+    return tags[Math.floor(Math.random() *tags.length)]
+}
+
+function highlightTag(tag){
+    tag.classList.add('highlight')
+}
+
+function unhighlightTag(tag){
+    tag.classList.remove('highlight')
 }
